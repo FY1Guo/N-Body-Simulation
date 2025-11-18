@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 class plotting:
     def __init__(self, time):
         """
-        'time' is an array from initial time to end time with step size dt
+        'time' is a 1D array from initial time to end time with step size dt
         """
         self.time = time 
         return
@@ -52,16 +52,43 @@ class plotting:
         """
         vel_mag = (vel[:,0]**2 + vel[:,1]**2)**0.5
         plt.plot(self.time, vel_mag)
-        plt.title("Ball Velocity vs Time")
+        plt.title("Ball Velocity Magnitude vs Time")
         plt.xlabel("Time")
-        plt.ylabel("Velocity")
+        plt.ylabel("Velocity Magnitude")
         plt.show()
         return
         
     def force_vs_time(self, force):
+        """
+        'force' is the drag force in 1D array form
+        """
         plt.plot(self.time, force)
         plt.title("Drag Force on Ball vs Time")
         plt.xlabel("Time")
         plt.ylabel("Drag Force")
+        plt.show()
+        return
+    
+    def force_vs_velocity(self, force, vel):
+        """
+        'force' is the drag force in 1D array form
+        'vel' is the velocity in 2D array form
+        """
+        vel_mag = (vel[:,0]**2 + vel[:,1]**2)**0.5
+        plt.plot(vel_mag, force)
+        plt.title("Drag Force vs Velocity Magnitude")
+        plt.xlabel("Velocity Magnitude")
+        plt.ylabel("Drag Force")
+        plt.show()
+        return
+    
+    def energy_vs_time(self, energy):
+        """
+        'energy' is the total system energy in 1D array form
+        """
+        plt.plot(self.time, energy)
+        plt.title("System Energy vs Time")
+        plt.xlabel("Time")
+        plt.ylabel("Energy")
         plt.show()
         return
