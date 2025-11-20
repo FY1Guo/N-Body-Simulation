@@ -1,20 +1,20 @@
 import numpy as np
 
 
-def get_ball_v_new(r_col, v, ball_pos, ball_v, m, M):
+def get_v_ball_new(r_col, v, ball_pos, v_ball, m, M):
     # Compute new velocity after collision with ball
 
     n = r_col - ball_pos
     n_hat = n / np.linalg.norm(n)
 
-    rel = v - ball_v
+    rel = v - v_ball
     u_n = np.dot(rel, n_hat) * n_hat
 
     coeff_p = 2 * M / (m + M)
     coeff_b = 2 * m / (m + M)
 
     v_p_new = v - coeff_p * u_n
-    #v_b_new = ball_v + coeff_b * u_n
+    #v_b_new = v_ball + coeff_b * u_n
 
     delta_v = v_p_new - v
 
@@ -47,7 +47,7 @@ def get_ball_collisions(r0, v, ball_pos, R_ball, t_max, m_gas, M_ball):
         return []
     t_collision = min(collision_times)
     r_col = r0 + v * t_collision
-    v_col, delta_v = get_ball_v_new(r_col, v, ball_pos, R_ball, m_gas, M_ball)
+    v_col, delta_v = get_v_ball_new(r_col, v, ball_pos, R_ball, m_gas, M_ball)
 
     # Compute change in velocity so we can compute total change in the ball's momentum due to collisions.
     return [r_col, v_col, t_collision, delta_v]
@@ -61,11 +61,11 @@ def get_ball_delta_v(r0, v, ball_pos, R_ball):
 def get_wall_collisions(r0, v, box_size, t_max):
     x0, y0 = r0
     vx, vy = v
-    L = boxsize
+    L = box_size
 
     # Set x0 and y0 in bounds
-    x0 = min(max(x0, epsilon), boxsize - epsilon)
-    y0 = min(max(y0, epsilon), boxsize - epsilon)
+    x0 = min(max(x0, 0), L)
+    y0 = min(max(y0, 0), L)
 
     if vx == 0:
         t_right = np.inf
@@ -82,10 +82,10 @@ def get_wall_collisions(r0, v, box_size, t_max):
 
     new_coordinates = np.array(
         [
-            (L - epsilon, y0 + vy * t_right),
-            (epsilon, y0 + vy * t_left),
-            (x0 + vx * t_top, L - epsilon),
-            (x0 + vx * t_bot, epsilon),
+            (L, y0 + vy * t_right),
+            (0, y0 + vy * t_left),
+            (x0 + vx * t_top, L),
+            (x0 + vx * t_bot, 0),
         ]
     )
     new_velocity = np.array([(-vx, vy), (-vx, vy), (vx, -vy), (vx, -vy)])
@@ -117,7 +117,7 @@ def evolve_position(r0, v, ball_pos, v_ball, R_ball, box_size, step_length, m_ga
     t_remaining = step_length
     dv_total = np.array([0, 0])
     while t_remaining > 0:
-        ball_intersections = get_ball_collisions(r0, v, ball_pos, R_ball, ball_v, t_remaining, m_gas, M_ball)
+        ball_intersections = get_ball_collisions(r0, v, ball_pos, R_ball, v_ball, t_remaining, m_gas, M_ball)
         wall_collisions = get_wall_collisions(r0, v, box_size, t_remaining)
         if len(ball_intersections) > 0:
             v, r0, delta_t, delta_v = ball_intersections
@@ -125,7 +125,7 @@ def evolve_position(r0, v, ball_pos, v_ball, R_ball, box_size, step_length, m_ga
         elif len(wall_collisions) > 0:
             v, r0, delta_t = wall_collisions
         else:
-            r0 = r0 + v * t
+            r0 = r0 + v * t_remaining
             break
         t_remaining -= delta_t
     return r0, v, dv_total
