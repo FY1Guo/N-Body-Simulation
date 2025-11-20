@@ -29,6 +29,7 @@
     a. Particle positions & velocities stored as (N,2) arrays
     b. Ball position & velocity stored as (1,2) array
     c. Lists storing past system states - 4 total, storing particle positions & velocities and ball pos. & vel.
+    d. Box is a square with the bottom left corner at the origin.
     
 5. Labor division
     a. Gas particle trajectories - Fangyi & Carter
