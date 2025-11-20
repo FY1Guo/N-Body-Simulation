@@ -1,10 +1,49 @@
 import numpy as np
 
-epsilon = 1e-10
+def get_ball_v_new(r_col, v, ball_pos, R_ball):
+    #Compute new velocity after collision with ball
+
+    n = r_col - ball_pos
+    n_hat = n / np.linalg.norm(n)
+    v_normal = np.dot(v, n_hat) * n_hat
+    v_new = v - 2 * v_normal
+    return v_new
+
 
 def get_ball_collisions(r0, v, ball_pos, R_ball, t_max):
     #Check for collisions with the ball which occur in time less than t_max
-    return #position, velocity, time when collision occurs. Return [] if no collision occurs    
+
+    # Relative coordinates to the ball center
+    dr = r0 - ball_pos
+
+    # Solve |dr + v*t|^2 = R_ball^2
+    a = np.dot(v, v)
+    b = 2 * np.dot(dr, v)
+    c = np.dot(dr, dr) - R_ball**2
+
+    if a == 0:
+        return []
+    
+    discriminant = b**2 - 4*a*c
+    if discriminant < 0:
+        return []  # No real roots, no collision
+    sqrt_disc = np.sqrt(discriminant)
+    t1 = (-b - sqrt_disc) / (2*a)
+    t2 = (-b + sqrt_disc) / (2*a)
+
+    collision_times = [t for t in (t1, t2) if 0 < t <= t_max]
+    if not collision_times:
+        return []
+    t_collision = min(collision_times)
+    r_col = r0 + v * t_collision
+    v_col = get_ball_v_new(r_col, v, ball_pos, R_ball)
+    return [r_col, v_col, t_collision]
+    #position, velocity, time when collision occurs. Return [] if no collision occurs
+    
+    
+def get_ball_delta_v(r0, v, ball_pos, R_ball):
+    return
+    
 
 def get_wall_collisions(r0, v, box_size, t_max):
     x0, y0 = r0
@@ -45,7 +84,7 @@ def get_wall_collisions(r0, v, box_size, t_max):
 def evolve_position(r0, v, ball_pos, R_ball, box_size, step_length):
     t_remaining = step_length
     while time_remaining > 0:
-        ball_intersections = get_ball_intersections(r0, v, ball_pos, R_ball, t_remaining)
+        ball_intersections = get_ball_collisions(r0, v, ball_pos, R_ball, t_remaining)
         wall_collisions = get_wall_collisions(r0, v, box_size, t_remaining)
         if len(ball_intersections)>0:
             v, r0, delta_t = ball_intersections
