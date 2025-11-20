@@ -11,14 +11,14 @@ def get_v_ball_new(r_col, v, ball_pos, v_ball, m, M):
     u_n = np.dot(rel, n_hat) * n_hat
 
     coeff_p = 2 * M / (m + M)
-    coeff_b = 2 * m / (m + M)
+    #coeff_b = 2 * m / (m + M)
 
     v_p_new = v - coeff_p * u_n
     #v_b_new = v_ball + coeff_b * u_n
 
     delta_v = v_p_new - v
 
-    return v_p_new, delta_v #v_b_new, impulse
+    return v_p_new, delta_v #v_b_new
 
 
 def get_ball_collisions(r0, v, ball_pos, R_ball, t_max, m_gas, M_ball):
@@ -52,10 +52,6 @@ def get_ball_collisions(r0, v, ball_pos, R_ball, t_max, m_gas, M_ball):
     # Compute change in velocity so we can compute total change in the ball's momentum due to collisions.
     return [r_col, v_col, t_collision, delta_v]
     # position, velocity, time when collision occurs. Return [] if no collision occurs
-
-
-def get_ball_delta_v(r0, v, ball_pos, R_ball):
-    return
 
 
 def get_wall_collisions(r0, v, box_size, t_max):
