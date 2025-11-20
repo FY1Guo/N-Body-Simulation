@@ -1,0 +1,21 @@
+import numpy as np
+
+class initialize:
+    def make_particles(N):
+        """
+        Input:
+        N - number of particles
+
+        Output:
+        2xN Array of ball velocity in x-y basis
+        """
+
+        initial_angles = np.asarray([np.random.uniform(0,2*np.pi) for i in range(N)]) 
+        initial_magnitudes = np.asarray([np.random.normal(loc = 464,scale = 50) for i in range(N)])
+        out_arr = np.zeros((2,N))
+        for i in range(N):
+            out_arr[0,i] += initial_magnitudes[i] * np.cos(initial_angles) 
+            out_arr[1,i] += initial_magnitudes[i] * np.sin(initial_angles)
+
+        return out_arr
+print(initialize.make_particles(10))
