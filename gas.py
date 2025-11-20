@@ -14,14 +14,14 @@ def get_ball_v_new(r_col, v, ball_pos, ball_v, m, M):
     coeff_b = 2 * m / (m + M)
 
     v_p_new = v - coeff_p * u_n
-    v_b_new = ball_v + coeff_b * u_n
+    #v_b_new = ball_v + coeff_b * u_n
 
-    impulse = m * (v_p_new - v)
+    delta_v = v_p_new - v
 
-    return v_p_new, v_b_new, impulse
+    return v_p_new, delta_v #v_b_new, impulse
 
 
-def get_ball_collisions(r0, v, ball_pos, R_ball, t_max):
+def get_ball_collisions(r0, v, ball_pos, R_ball, t_max, m_gas, M_ball):
     # Check for collisions with the ball which occur in time less than t_max
 
     # Relative coordinates to the ball center
@@ -47,10 +47,9 @@ def get_ball_collisions(r0, v, ball_pos, R_ball, t_max):
         return []
     t_collision = min(collision_times)
     r_col = r0 + v * t_collision
-    v_col = get_ball_v_new(r_col, v, ball_pos, R_ball)
+    v_col, delta_v = get_ball_v_new(r_col, v, ball_pos, R_ball, m_gas, M_ball)
 
     # Compute change in velocity so we can compute total change in the ball's momentum due to collisions.
-    delta_v = v_col - v
     return [r_col, v_col, t_collision, delta_v]
     # position, velocity, time when collision occurs. Return [] if no collision occurs
 
@@ -103,7 +102,7 @@ def get_wall_collisions(r0, v, box_size, t_max):
     return new_coordinates[collision_idx, :], new_velocity[collision_idx, :], time
 
 
-def evolve_position(r0, v, ball_pos, R_ball, box_size, step_length):
+def evolve_position(r0, v, ball_pos, v_ball, R_ball, box_size, step_length, m_gas, M_ball):
     """
     Evolves the position of a single gas particle through a time step.
 
@@ -118,7 +117,7 @@ def evolve_position(r0, v, ball_pos, R_ball, box_size, step_length):
     t_remaining = step_length
     dv_total = np.array([0, 0])
     while t_remaining > 0:
-        ball_intersections = get_ball_collisions(r0, v, ball_pos, R_ball, t_remaining)
+        ball_intersections = get_ball_collisions(r0, v, ball_pos, R_ball, ball_v, t_remaining, m_gas, M_ball)
         wall_collisions = get_wall_collisions(r0, v, box_size, t_remaining)
         if len(ball_intersections) > 0:
             v, r0, delta_t, delta_v = ball_intersections
