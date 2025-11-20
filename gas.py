@@ -37,7 +37,10 @@ def get_ball_collisions(r0, v, ball_pos, R_ball, t_max):
     t_collision = min(collision_times)
     r_col = r0 + v * t_collision
     v_col = get_ball_v_new(r_col, v, ball_pos, R_ball)
-    return [r_col, v_col, t_collision]
+    
+    #Compute change in velocity so we can compute total change in the ball's momentum due to collisions.
+    delta_v = v_col-v
+    return [r_col, v_col, t_collision, delta_v]
     #position, velocity, time when collision occurs. Return [] if no collision occurs
     
     
@@ -83,14 +86,17 @@ def get_wall_collisions(r0, v, box_size, t_max):
 
 def evolve_position(r0, v, ball_pos, R_ball, box_size, step_length):
     t_remaining = step_length
+    dv_total = np.array([0,0])
     while time_remaining > 0:
         ball_intersections = get_ball_collisions(r0, v, ball_pos, R_ball, t_remaining)
         wall_collisions = get_wall_collisions(r0, v, box_size, t_remaining)
         if len(ball_intersections)>0:
-            v, r0, delta_t = ball_intersections
+            v, r0, delta_t, delta_v = ball_intersections
+            dv_total += delta_v
         elif len(wall_collisions)>0:
             v, r0, delta_t = wall_collisions
         else:
             r0 = r0 + v*t
             break
         time_remaining -= delta_t
+   return r0, v, dv_total
