@@ -125,3 +125,34 @@ def evolve_position(r0, v, ball_pos, v_ball, R_ball, box_size, step_length, m_ga
             break
         t_remaining -= delta_t
     return r0, v, dv_total
+
+def update_projectile(ball_pos, ball_vel, impulse_from_particles, M_ball, box_size, dt):
+    """
+    Update the ball velocity and position for one time step.
+
+    Returns:
+    new_pos : (2,) array
+    new_vel : (2,) array
+    acceleration : (2,) array
+    """
+    
+    delta_v = impulse_from_particles / M_ball # change in v
+    new_vel = ball_vel + delta_v # updated velocity
+    new_pos = ball_pos + new_vel * dt # updated position
+
+    for i in range(2):
+
+        # left wall
+        if new_pos[i] < 0:
+            new_pos[i] = -new_pos[i]
+            new_vel[i] = -new_vel[i]
+
+        # right wall
+        elif new_pos[i] > box_size:
+            new_pos[i] = 2*box_size - new_pos[i]
+            new_vel[i] = -new_vel[i]
+
+    acceleration = (new_vel - ball_vel) / dt
+
+    return new_pos, new_vel, acceleration
+
