@@ -1,14 +1,24 @@
 import numpy as np
 
 
-def get_ball_v_new(r_col, v, ball_pos, R_ball):
-    # Compute new velocity after collision with ball
+def get_ball_v_new(r_col, v, ball_pos, ball_v, m, M):
+    #Compute new velocity after collision with ball
 
     n = r_col - ball_pos
     n_hat = n / np.linalg.norm(n)
-    v_normal = np.dot(v, n_hat) * n_hat
-    v_new = v - 2 * v_normal
-    return v_new
+
+    rel = v - ball_v
+    u_n = np.dot(rel, n_hat) * n_hat
+
+    coeff_p = 2 * M / (m + M)
+    coeff_b = 2 * m / (m + M)
+
+    v_p_new = v - coeff_p * u_n
+    v_b_new = ball_v + coeff_b * u_n
+
+    impulse = m * (v_p_new - v)
+
+    return v_p_new, v_b_new, impulse
 
 
 def get_ball_collisions(r0, v, ball_pos, R_ball, t_max):
