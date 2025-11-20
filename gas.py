@@ -117,7 +117,7 @@ def evolve_position(r0, v, ball_pos, R_ball, box_size, step_length):
     '''
     t_remaining = step_length
     dv_total = np.array([0, 0])
-    while time_remaining > 0:
+    while t_remaining > 0:
         ball_intersections = get_ball_collisions(r0, v, ball_pos, R_ball, t_remaining)
         wall_collisions = get_wall_collisions(r0, v, box_size, t_remaining)
         if len(ball_intersections) > 0:
@@ -128,5 +128,5 @@ def evolve_position(r0, v, ball_pos, R_ball, box_size, step_length):
         else:
             r0 = r0 + v * t
             break
-        time_remaining -= delta_t
+        t_remaining -= delta_t
     return r0, v, dv_total
