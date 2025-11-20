@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+import matplotlib.animation as anim
 
 class plotting:
     def __init__(self, time):
@@ -131,3 +132,12 @@ class plotting:
         plt.ylabel("Energy")
         plt.grid()
         plt.show()
+    
+#    def trajectory_ball_animated(self, traj):
+#        fig, ax = plt.subplots()
+#        ball = ax.scatter(traj[0,0], traj[0,1])
+#        def anim_update(frame):
+#            
+#            return
+#        anim.ArtistAnimation(fig, traj, )
+#        return
