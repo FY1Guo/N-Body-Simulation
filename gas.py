@@ -2,7 +2,7 @@ import numpy as np
 
 
 def get_ball_v_new(r_col, v, ball_pos, ball_v, m, M):
-    #Compute new velocity after collision with ball
+    # Compute new velocity after collision with ball
 
     n = r_col - ball_pos
     n_hat = n / np.linalg.norm(n)
@@ -104,9 +104,9 @@ def get_wall_collisions(r0, v, box_size, t_max):
 
 
 def evolve_position(r0, v, ball_pos, R_ball, box_size, step_length):
-    '''
+    """
     Evolves the position of a single gas particle through a time step.
-    
+
     Returns:
     r0 : (2,) array
         Position of the particle at the end of the time step
@@ -114,7 +114,7 @@ def evolve_position(r0, v, ball_pos, R_ball, box_size, step_length):
         Velocity of the particle at the end of the time step
     dv_total : (2,) array
         Total change in velocity of the gas particle due to ball collisions
-    '''
+    """
     t_remaining = step_length
     dv_total = np.array([0, 0])
     while t_remaining > 0:
