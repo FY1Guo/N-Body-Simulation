@@ -26,3 +26,22 @@ def test_update_projectile_zero_impulse_no_change():
     assert np.allclose(new_vel, ball_vel)
     # new_pos should just be old_pos + v * dt
     assert np.allclose(new_pos, ball_pos + ball_vel * dt)
+
+
+def test_evolve_position_no_collision_free_motion():
+    r0 = np.array([0.5, 0.5])
+    v = np.array([0.2, -0.1])
+
+    ball_pos = np.array([2.0, 2.0])  # far away
+    ball_vel = np.array([0.0, 0.0])
+    R_ball = 0.1
+    box_size = 10.0
+    dt = 0.05
+    m_gas = 1.0
+    M_ball = 1000.0
+
+    r_new, v_new, dv = evolve_position(r0, v, ball_pos, ball_vel, R_ball, box_size, dt, m_gas, M_ball)
+
+    assert np.allclose(r_new, r0 + v * dt)
+    assert np.allclose(v_new, v)        # no collision
+    assert np.allclose(dv, np.zeros_like(v))  # no impulse on ball
