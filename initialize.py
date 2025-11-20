@@ -23,15 +23,17 @@ class initialize:
         """
         Input:
         N - number of particles
+
+        Output:
+        Array of particle positions randomly distributed within the box
         """
 
         initial_x = np.asarray([np.random.uniform(0,1) for i in range(N)])
         initial_y = np.asarray([np.random.uniform(0,1) for i in range(N)])
 
-        our_arr = np.zeros((N,2))
+        out_arr = np.zeros((N,2))
         for i in range(N):
             out_arr[i,0] += initial_x[i]
             out_arr[i,1] += initial_y[i]
 
         return out_arr
-print(initialize.make_particles(10))

@@ -111,9 +111,9 @@ def evolve_position(r0, v, ball_pos, v_ball, R_ball, box_size, step_length, m_ga
         Total change in velocity of the gas particle due to ball collisions
     """
     t_remaining = step_length
-    dv_total = np.array([0, 0])
+    dv_total = np.array([0, 0], dtype = float)
     while t_remaining > 0:
-        ball_intersections = get_ball_collisions(r0, v, ball_pos, R_ball, v_ball, t_remaining, m_gas, M_ball)
+        ball_intersections = get_ball_collisions(r0, v, ball_pos, R_ball, t_remaining, m_gas, M_ball)
         wall_collisions = get_wall_collisions(r0, v, box_size, t_remaining)
         if len(ball_intersections) > 0:
             v, r0, delta_t, delta_v = ball_intersections
