@@ -82,7 +82,7 @@ class plotting:
         plt.show()
         return
     
-    def energy_vs_time(self, energy):
+    def total_energy_vs_time(self, energy):
         """
         'energy' is the total system energy in 1D array form
         """
@@ -92,3 +92,21 @@ class plotting:
         plt.ylabel("Energy")
         plt.show()
         return
+    
+    def kinetic_energy_vs_time(self, k_energy, scope="ball"):
+        """
+        kinetic energy of ball over time
+        
+        scope = "ball" for ball kinetic energy
+        scope = "particles" for the average kinetic energy of the particles
+        
+        'k_energy' is the kinetic energy in 1D array form
+        """
+        plt.plot(self.time, k_energy)
+        if scope == "ball":
+            plt.title("Ball Kinetic Energy vs Time")
+        elif scope == "particles"
+            plt.title("Average Kinetic Energy of Particles vs Time")
+        plt.xlabel("Time")
+        plt.ylabel("Energy")
+        plt.show()
