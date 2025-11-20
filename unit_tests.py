@@ -11,3 +11,18 @@ def test_wall_collision_left_and_right():
 
     assert t_hit > 0
     assert wall in ("left", "right")
+
+
+def test_update_projectile_zero_impulse_no_change():
+    ball_pos = np.array([0.5, 0.5])
+    ball_vel = np.array([1.0, 0.0])
+    impulse = np.array([0.0, 0.0])
+    M_ball = 10.0
+    dt = 0.01
+    box = 1.0
+
+    new_pos, new_vel = update_projectile(ball_pos, ball_vel, impulse, M_ball, box, dt)
+
+    assert np.allclose(new_vel, ball_vel)
+    # new_pos should just be old_pos + v * dt
+    assert np.allclose(new_pos, ball_pos + ball_vel * dt)
