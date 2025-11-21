@@ -73,7 +73,8 @@ class plotting:
         'force' is the drag force in 1D array form
         """
         
-        plt.plot(self.time, force)
+        force_mag = (force[:,0]**2 + force[:,1]**2)**0.5
+        plt.plot(self.time, force_mag)
         plt.title("Drag Force on Ball vs Time")
         plt.xlabel("Time")
         plt.ylabel("Drag Force")
@@ -85,12 +86,13 @@ class plotting:
         """
         This shows the force of drag on the ball vs velocity of the ball
         
-        'force' is the drag force in 1D array form
+        'force' is the drag force in 2D array form
         'vel' is the velocity in 2D array form
         """
         
+        force_mag = (force[:,0]**2 + force[:,1]**2)**0.5
         vel_mag = (vel[:,0]**2 + vel[:,1]**2)**0.5
-        plt.plot(vel_mag, force)
+        plt.plot(vel_mag, force_mag)
         plt.title("Drag Force vs Velocity Magnitude")
         plt.xlabel("Velocity Magnitude")
         plt.ylabel("Drag Force")

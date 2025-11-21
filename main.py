@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from initialize import *
 import gas
-from plottingClass import *
+import plottingClass as plots
 
 M_ball = 10
 M_gas = 0.1
@@ -94,18 +94,21 @@ if __name__ == "__main__":
     time = np.linspace(0, sim_time, len(avg_E_hist))
     
     # --- plots ---
+    plotter = plots(time)
+    
     # energies vs time
     total_E = avg_E_hist + ball_E_hist
     
-    plt.figure()
-    plt.plot(time, avg_E_hist, label="avg particle KE")
-    plt.plot(time, ball_E_hist, label="ball KE")
-    plt.plot(time, total_E, label="total KE")
-    plt.xlabel("time")
-    plt.ylabel("energy")
-    plt.title("Kinetic energies vs time")
-    plt.legend()
-    plt.grid(True)
+    plotter.total_energy_vs_time(total_E)
+    plotter.kinetic_energy_vs_time(ball_E_hist, scope="ball")
+    plotter.kinetic_energy_vs_time(avg_E_hist, scope="particles")
     
+    # force vs velocity and force vs time
+    plotter.force_vs_velocity(force_hist, ball_vel_hist)
+    plotter.force_vs_time(force_hist)
     
-    plt.show()
+    # velocity vs time
+    plotter.velocity_vs_time(ball_vel_hist)
+    
+    # trajectories
+    plotter.trajectory_ball(ball_pos_hist)
