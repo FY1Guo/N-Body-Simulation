@@ -35,11 +35,17 @@ def run_simulation(r_arr_init, v_arr_init, ball_pos_init, ball_vel_init,  R_ball
     ball_vel_hist = np.zeros((N_steps + 1, 2))
     average_particle_energy_hist = np.zeros(N_steps + 1)
     ball_energy_hist = np.zeros(N_steps + 1)
+    force_hist = np.zeros((N_steps + 1, 2))
 
     while i <= N_steps:
         r_new, v_new, dv_list = stepper(r_arr_init, v_arr_init, ball_pos_init, ball_vel_init, R_ball, step_length) #update gas particles 
         net_impulse_x = np.sum(M_gas * dv_list[0:,0])
         net_impulse_y = np.sum(M_gas * dv_list[0:,1])
+        
+        #we can estimate the force on the ball using the impulse: delta p / delta t 
+        force_hist[i,0] += net_impulse_x / step_length
+        force_hist[i,1] += net_impulse_y / step_length
+
         net_impulse = np.array([net_impulse_x, net_impulse_y])
         ball_r_new, ball_v_new, ball_accel = gas.update_projectile(ball_pos_init, ball_vel_init, net_impulse, M_ball, 1, step_length)
         # print(ball_v_new) 
@@ -60,9 +66,8 @@ def run_simulation(r_arr_init, v_arr_init, ball_pos_init, ball_vel_init,  R_ball
         ball_vel_init = ball_vel_init
         i += 1
 
-    return average_particle_energy_hist, ball_energy_hist 
+    return average_particle_energy_hist, ball_energy_hist, force_hist
 
-# print(run_simulation(r_arr_init, v_arr_init, init_ball_pos, init_ball_vel, 0.1, 1, 20))
 
 if __name__ == "__main__":
     # --- simulation parameters ---
@@ -75,7 +80,7 @@ if __name__ == "__main__":
     v_arr_init = initialize.make_particles_vel(N_particles)
     
     # --- runs the simulation ---
-    avg_E_hist, ball_E_hist = run_simulation(
+    avg_E_hist, ball_E_hist, force_hist = run_simulation(
         r_arr_init,
         v_arr_init,
         init_ball_pos,
