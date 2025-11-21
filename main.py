@@ -66,7 +66,7 @@ def run_simulation(r_arr_init, v_arr_init, ball_pos_init, ball_vel_init,  R_ball
         ball_vel_init = ball_vel_init
         i += 1
 
-    return average_particle_energy_hist, ball_energy_hist, force_hist
+    return average_particle_energy_hist, ball_energy_hist, ball_pos_hist, ball_vel_hist, ball_accel_hist
 
 
 if __name__ == "__main__":
