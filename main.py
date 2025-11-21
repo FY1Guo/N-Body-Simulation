@@ -42,7 +42,7 @@ def run_simulation(r_arr_init, v_arr_init, ball_pos_init, ball_vel_init,  R_ball
         net_impulse_y = np.sum(M_gas * dv_list[0:,1])
         net_impulse = np.array([net_impulse_x, net_impulse_y])
         ball_r_new, ball_v_new, ball_accel = gas.update_projectile(ball_pos_init, ball_vel_init, net_impulse, M_ball, 1, step_length)
-        print(ball_v_new) 
+        # print(ball_v_new) 
         energy = []
         for k in range(N_particles):
             v_mag = v_new[k][0] ** 2 + v_new[k][1] ** 2
