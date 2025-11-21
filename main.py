@@ -56,7 +56,7 @@ def run_simulation(r_arr_init, v_arr_init, ball_pos_init, ball_vel_init,  R_ball
         r_arr_init = r_new #update frame
         v_arr_init = v_new
         ball_pos_init = ball_r_new
-        ball_vel_init = ball_vel_new
+        ball_vel_init = ball_vel_init
         i += 1
 
     return average_particle_energy_hist, ball_energy_hist 
