@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from initialize import *
 import gas
+from plottingClass import *
 
 M_ball = 10
 M_gas = 0.1
@@ -63,4 +64,44 @@ def run_simulation(r_arr_init, v_arr_init, ball_pos_init, ball_vel_init,  R_ball
 
 print(run_simulation(r_arr_init, v_arr_init, init_ball_pos, init_ball_vel, 0.1, 1, 20))
 
-
+if __name__ == "__main__":
+    # --- simulation parameters ---
+    R_ball = 0.1
+    dt = 0.01          # time step
+    sim_time = 20.0    # total simulation time
+    
+    # --- initial gas particle state ---
+    r_arr_init = initialize.make_particles_pos(N_particles)
+    v_arr_init = initialize.make_particles_vel(N_particles)
+    
+    # --- runs the simulation ---
+    avg_E_hist, ball_E_hist = run_simulation(
+        r_arr_init,
+        v_arr_init,
+        init_ball_pos,
+        init_ball_vel,
+        R_ball,
+        dt,
+        sim_time,
+    )
+    
+    # --- builds time axis for plotting ---
+    # run_simulation fills N_steps+1 entries where N_steps = sim_time/dt
+    time = np.linspace(0, sim_time, len(avg_E_hist))
+    
+    # --- plots ---
+    # energies vs time
+    total_E = avg_E_hist + ball_E_hist
+    
+    plt.figure()
+    plt.plot(time, avg_E_hist, label="avg particle KE")
+    plt.plot(time, ball_E_hist, label="ball KE")
+    plt.plot(time, total_E, label="total KE")
+    plt.xlabel("time")
+    plt.ylabel("energy")
+    plt.title("Kinetic energies vs time")
+    plt.legend()
+    plt.grid(True)
+    
+    
+    plt.show()
