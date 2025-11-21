@@ -13,12 +13,11 @@ def test_wall_collision_left_and_right():
     box = 1.0
     t_max = 1.0
 
-   r_new, v_new, t_hit = get_wall_collisions(r0, v, box, t_max)
-   assert t_hit > 0
-   # Check that we hit a vertical wall: x should be 0 or box
-   assert np.isclose(r_new[0], 0.0) or np.isclose(r_new[0], box)
-   # Velocity in x should flip sign, y unchanged
-   assert np.allclose(v_new, np.array([-v[0], v[1]]))
+    r_new, v_new, t_hit = gas.get_wall_collisions(r0, v, box, t_max)
+
+    assert t_hit > 0
+    assert np.isclose(r_new[0], 0.0) or np.isclose(r_new[0], box) # Check that we hit a vertical wall: x should be 0 or box
+    assert np.allclose(v_new, np.array([-v[0], v[1]])) # Velocity in x should flip sign, y unchanged
 
 """ Update projectile zero impulse """
 
