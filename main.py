@@ -79,7 +79,7 @@ if __name__ == "__main__":
     v_arr_init = initialize.make_particles_vel(N_particles)
     
     # --- runs the simulation ---
-    avg_E_hist, ball_E_hist, force_hist = run_simulation(
+    avg_E_hist, ball_E_hist, ball_pos_hist, ball_vel_hist, force_hist = run_simulation(
         r_arr_init,
         v_arr_init,
         init_ball_pos,
