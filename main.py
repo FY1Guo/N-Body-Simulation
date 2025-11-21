@@ -155,3 +155,23 @@ if __name__ == "__main__":
     plt.grid(True)
 
     plt.show()
+    
+    # --- plots ---
+    plotter = plots(time)
+    
+    # energies vs time
+    total_E = avg_E_hist + ball_E_hist
+    
+    plotter.total_energy_vs_time(total_E)
+    plotter.kinetic_energy_vs_time(ball_E_hist, scope="ball")
+    plotter.kinetic_energy_vs_time(avg_E_hist, scope="particles")
+    
+    # force vs velocity and force vs time
+    plotter.force_vs_velocity(force_hist, ball_vel_hist)
+    plotter.force_vs_time(force_hist)
+    
+    # velocity vs time
+    plotter.velocity_vs_time(ball_vel_hist)
+    
+    # trajectories
+    plotter.trajectory_ball(ball_pos_hist)
