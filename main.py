@@ -27,46 +27,75 @@ def stepper(r_arr, v_arr, ball_pos, ball_vel, R_ball, step_length):
 r_arr_init = initialize.make_particles_pos(N_particles)
 v_arr_init = initialize.make_particles_vel(N_particles)
 
-def run_simulation(r_arr_init, v_arr_init, ball_pos_init, ball_vel_init,  R_ball, step_length, sim_time):
-    N_steps = int(sim_time/step_length) #N steps
-    i = 0
-    ball_accel_hist = np.zeros((N_steps + 1, 2))
-    ball_pos_hist = np.zeros((N_steps + 1, 2))
-    ball_vel_hist = np.zeros((N_steps + 1, 2))
+def run_simulation(r_arr_init, v_arr_init, ball_pos_init, ball_vel_init, R_ball, step_length, sim_time):
+    """
+    Runs the n-body simulation
+    Returns:
+        average_particle_energy_hist : (N_steps+1,) array
+        ball_energy_hist             : (N_steps+1,) array
+        ball_pos_hist                : (N_steps+1, 2) array
+        ball_vel_hist                : (N_steps+1, 2) array
+        force_hist                   : (N_steps+1, 2) array  (drag force on the ball)
+    """
+    # number of steps
+    N_steps = int(sim_time / step_length)
+
+    # history arrays
     average_particle_energy_hist = np.zeros(N_steps + 1)
     ball_energy_hist = np.zeros(N_steps + 1)
+    ball_pos_hist = np.zeros((N_steps + 1, 2))
+    ball_vel_hist = np.zeros((N_steps + 1, 2))
     force_hist = np.zeros((N_steps + 1, 2))
 
-    while i <= N_steps:
-        r_new, v_new, dv_list = stepper(r_arr_init, v_arr_init, ball_pos_init, ball_vel_init, R_ball, step_length) #update gas particles 
-        net_impulse_x = np.sum(M_gas * dv_list[0:,0])
-        net_impulse_y = np.sum(M_gas * dv_list[0:,1])
-        
-        #we can estimate the force on the ball using the impulse: delta p / delta t 
-        force_hist[i,0] += net_impulse_x / step_length
-        force_hist[i,1] += net_impulse_y / step_length
+    # local copies 
+    r_arr = r_arr_init.copy()
+    v_arr = v_arr_init.copy()
+    ball_pos = ball_pos_init.copy()
+    ball_vel = ball_vel_init.copy()
 
-        net_impulse = np.array([net_impulse_x, net_impulse_y])
-        ball_r_new, ball_v_new, ball_accel = gas.update_projectile(ball_pos_init, ball_vel_init, net_impulse, M_ball, 1, step_length)
-        # print(ball_v_new) 
-        energy = []
-        for k in range(N_particles):
-            v_mag = v_new[k][0] ** 2 + v_new[k][1] ** 2
-            e_mag = 1/2 * M_gas * v_mag
-            energy.append(e_mag)
-        average_particle_energy_hist[i] += np.mean(energy)
-        ball_energy_hist[i] += 1/2 * M_ball * (ball_v_new[0] ** 2 + ball_v_new[1] ** 2)
-        
-        ball_accel_hist[i,0] += ball_accel[0]
-        ball_accel_hist[i,1] += ball_accel[1]
+    # --- initial state at step 0 ---
+    ball_pos_hist[0] = ball_pos
+    ball_vel_hist[0] = ball_vel
 
-        r_arr_init = r_new #update frame
-        v_arr_init = v_new
-        ball_pos_init = ball_r_new
-        ball_vel_init = ball_v_new
-        i += 1
+    speeds2_init = v_arr[:, 0]**2 + v_arr[:, 1]**2
+    average_particle_energy_hist[0] = 0.5 * M_gas * np.mean(speeds2_init)
+    ball_energy_hist[0] = 0.5 * M_ball * np.dot(ball_vel, ball_vel)
+    force_hist[0] = np.array([0.0, 0.0])
 
-    return avg_E_hist, ball_E_hist, ball_pos_hist, ball_vel_hist, force_hist
+    # --- time stepping ---
+    for step in range(1, N_steps + 1):
+        # evolves all gas particles by one step and get total dv per particle
+        r_new, v_new, dv_arr = stepper(r_arr, v_arr, ball_pos, ball_vel, R_ball, step_length)
+
+        # net change in gas momentum
+        delta_p_gas = M_gas * np.sum(dv_arr, axis=0)
+
+        # by momentum conservation, ball gets opposite impulse
+        net_impulse_ball = -delta_p_gas
+
+        # updates projectile (box size = 1.0)
+        ball_pos_new, ball_vel_new, ball_accel = gas.update_projectile(
+            ball_pos, ball_vel, net_impulse_ball, M_ball, 1.0, step_length
+        )
+
+        # records histories
+        ball_pos_hist[step] = ball_pos_new
+        ball_vel_hist[step] = ball_vel_new
+        force_hist[step] = M_ball * ball_accel  # F = m a
+
+        # energies
+        speeds2 = v_new[:, 0]**2 + v_new[:, 1]**2
+        average_particle_energy_hist[step] = 0.5 * M_gas * np.mean(speeds2)
+        ball_energy_hist[step] = 0.5 * M_ball * np.dot(ball_vel_new, ball_vel_new)
+
+        # advances state for next step
+        r_arr = r_new
+        v_arr = v_new
+        ball_pos = ball_pos_new
+        ball_vel = ball_vel_new
+
+    return average_particle_energy_hist, ball_energy_hist, ball_pos_hist, ball_vel_hist, force_hist
+
 
 if __name__ == "__main__":
     # --- simulation parameters ---
@@ -78,7 +107,7 @@ if __name__ == "__main__":
     r_arr_init = initialize.make_particles_pos(N_particles)
     v_arr_init = initialize.make_particles_vel(N_particles)
     
-    # --- runs the simulation ---
+    # --- run the simulation ---
     avg_E_hist, ball_E_hist, ball_pos_hist, ball_vel_hist, force_hist = run_simulation(
         r_arr_init,
         v_arr_init,
@@ -90,25 +119,39 @@ if __name__ == "__main__":
     )
     
     # --- builds time axis for plotting ---
-    # run_simulation fills N_steps+1 entries where N_steps = sim_time/dt
     time = np.linspace(0, sim_time, len(avg_E_hist))
     
-    # --- plots ---
-    plotter = plots(time)
-    
-    # energies vs time
+    # --- energies vs time ---
     total_E = avg_E_hist + ball_E_hist
-    
-    plotter.total_energy_vs_time(total_E)
-    plotter.kinetic_energy_vs_time(ball_E_hist, scope="ball")
-    plotter.kinetic_energy_vs_time(avg_E_hist, scope="particles")
-    
-    # force vs velocity and force vs time
-    plotter.force_vs_velocity(force_hist, ball_vel_hist)
-    plotter.force_vs_time(force_hist)
-    
-    # velocity vs time
-    plotter.velocity_vs_time(ball_vel_hist)
-    
-    # trajectories
-    plotter.trajectory_ball(ball_pos_hist)
+
+    plt.figure()
+    plt.plot(time, avg_E_hist, label="avg particle KE")
+    plt.plot(time, ball_E_hist, label="ball KE")
+    plt.plot(time, total_E, label="total KE")
+    plt.xlabel("time")
+    plt.ylabel("energy")
+    plt.title("Kinetic energies vs time")
+    plt.legend()
+    plt.grid(True)
+
+   # ball speed over time
+    ball_speed = np.linalg.norm(ball_vel_hist, axis=1)
+
+    plt.figure()
+    plt.plot(time, ball_speed)
+    plt.xlabel("time")
+    plt.ylabel("ball speed")
+    plt.title("Ball speed vs time")
+    plt.grid(True)
+
+    # drag force magnitude vs time
+    drag_mag = np.linalg.norm(force_hist, axis=1)
+
+    plt.figure()
+    plt.plot(time, drag_mag)
+    plt.xlabel("time")
+    plt.ylabel("drag force magnitude")
+    plt.title("Drag force vs time")
+    plt.grid(True)
+
+    plt.show()
