@@ -139,7 +139,6 @@ def update_projectile(ball_pos, ball_vel, impulse_from_particles, M_ball, box_si
     delta_v = impulse_from_particles / M_ball # change in v
     new_vel = ball_vel + delta_v # updated velocity
     new_pos = ball_pos + new_vel * dt # updated position
-
     for i in range(2):
 
         # left wall
