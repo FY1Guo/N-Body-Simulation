@@ -18,7 +18,7 @@ def stepper(r_arr, v_arr, ball_pos, ball_vel, R_ball, step_length):
        new_r_arr[i,0] += r_new[0]
        new_r_arr[i,1] += r_new[1]
        new_v_arr[i,0] += v_new[0]
-       new_v_arr[i,0] += v_new[1]
+       new_v_arr[i,1] += v_new[1]
        dv_arr[i,0] += dv[0]
        dv_arr[i,1] += dv[1]
     return new_r_arr, new_v_arr, dv_arr
