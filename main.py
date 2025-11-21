@@ -66,8 +66,7 @@ def run_simulation(r_arr_init, v_arr_init, ball_pos_init, ball_vel_init,  R_ball
         ball_vel_init = ball_v_new
         i += 1
 
-    return average_particle_energy_hist, ball_energy_hist, ball_pos_hist, ball_vel_hist, ball_accel_hist
-
+    return avg_E_hist, ball_E_hist, ball_pos_hist, ball_vel_hist, force_hist
 
 if __name__ == "__main__":
     # --- simulation parameters ---
