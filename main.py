@@ -62,7 +62,7 @@ def run_simulation(r_arr_init, v_arr_init, ball_pos_init, ball_vel_init,  R_ball
 
     return average_particle_energy_hist, ball_energy_hist 
 
-print(run_simulation(r_arr_init, v_arr_init, init_ball_pos, init_ball_vel, 0.1, 1, 20))
+# print(run_simulation(r_arr_init, v_arr_init, init_ball_pos, init_ball_vel, 0.1, 1, 20))
 
 if __name__ == "__main__":
     # --- simulation parameters ---
