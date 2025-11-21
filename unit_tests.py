@@ -1,5 +1,8 @@
 import numpy as np
-from gas import get_wall_collisions, update_projectile, evolve_position
+import pytest
+import gas
+import initialize
+from main import stepper, M_ball, M_gas
 
 def test_wall_collision_left_and_right():
     r0 = np.array([0.1, 0.5])
@@ -7,10 +10,12 @@ def test_wall_collision_left_and_right():
     box = 1.0
     t_max = 1.0
 
-    t_hit, wall = get_wall_collisions(r0, v, box, t_max)
-
-    assert t_hit > 0
-    assert wall in ("left", "right")
+   r_new, v_new, t_hit = get_wall_collisions(r0, v, box, t_max)
+   assert t_hit > 0
+   # Check that we hit a vertical wall: x should be 0 or box
+   assert np.isclose(r_new[0], 0.0) or np.isclose(r_new[0], box)
+   # Velocity in x should flip sign, y unchanged
+   assert np.allclose(v_new, np.array([-v[0], v[1]]))
 
 
 def test_update_projectile_zero_impulse_no_change():
