@@ -29,7 +29,7 @@ def test_update_projectile_zero_impulse_no_change():
     dt = 0.01
     box = 1.0
 
-    new_pos, new_vel = update_projectile(ball_pos, ball_vel, impulse, M_ball, box, dt)
+    new_pos, new_vel, acc = gas.update_projectile(ball_pos, ball_vel, impulse, M_ball, box, dt)
 
     assert np.allclose(new_vel, ball_vel)
     # new_pos should just be old_pos + v * dt
