@@ -48,9 +48,13 @@ def get_ball_collisions(r0, v, ball_pos, R_ball, t_max, m_gas, M_ball):
     t_collision = min(collision_times)
     r_col = r0 + v * t_collision
     v_col, delta_v = get_v_ball_new(r_col, v, ball_pos, R_ball, m_gas, M_ball)
+    
+    # Set new position to the edge of the ball.
+    relative_pos = r_col - ball_pos
+    r_new = ball_pos + relative_pos*R_ball/np.linalg.norm(relative_pos)
 
     # Compute change in velocity so we can compute total change in the ball's momentum due to collisions.
-    return [r_col, v_col, t_collision, delta_v]
+    return [r_new, v_col, t_collision, delta_v]
     # position, velocity, time when collision occurs. Return [] if no collision occurs
 
 
@@ -151,7 +155,7 @@ def update_projectile(ball_pos, ball_vel, impulse_from_particles, M_ball, box_si
             new_pos[i] = 2*box_size - new_pos[i]
             new_vel[i] = -new_vel[i]
 
-    acceleration = (new_vel - ball_vel) / dt
-
+    #acceleration = (new_vel - ball_vel) / dt
+    acceleration = delta_v / dt
     return new_pos, new_vel, acceleration
 
