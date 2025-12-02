@@ -19,7 +19,7 @@ class initialize:
 
         return out_arr
     
-    def make_particles_pos(N):
+    def make_particles_pos(N, box_size, ball_pos, ball_radius):
         """
         Input:
         N - number of particles
@@ -27,10 +27,15 @@ class initialize:
         Output:
         Array of particle positions randomly distributed within the box
         """
-
-        initial_x = np.asarray([np.random.uniform(0,1) for i in range(N)])
-        initial_y = np.asarray([np.random.uniform(0,1) for i in range(N)])
-
+        
+        initial_x = np.asarray([np.random.uniform(0,1) for i in range(N)])*box_size
+        initial_y = np.asarray([np.random.uniform(0,1) for i in range(N)])*box_size
+        for i in range(N):
+            pos_i = np.array([initial_x[i], initial_y[i]])
+            while np.sum((ball_pos-pos_i)**2)<ball_radius:
+                initial_x[i] = np.random.uniform(0,1)*box_size
+                initial_y[i] = np.random.uniform(0,1)*box_size
+                pos_i = np.array([initial_x[i], initial_y[i]])
         out_arr = np.zeros((N,2))
         for i in range(N):
             out_arr[i,0] += initial_x[i]
