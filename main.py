@@ -8,26 +8,26 @@ M_ball = 10
 M_gas = 0.1
 N_particles = int(1e3)
 init_ball_pos = np.array([0.5,0.5])
-init_ball_vel = np.array([0,-0.1])
+init_ball_vel = np.array([0,-2])
 
-def stepper(r_arr, v_arr, ball_pos, ball_vel, R_ball, step_length):
+def stepper(r_arr, v_arr, ball_pos, ball_vel, R_ball, step_length, box_size):
     new_r_arr = np.zeros((r_arr.shape[0], 2))
     new_v_arr = np.zeros((r_arr.shape[0], 2))
     dv_arr = np.zeros((r_arr.shape[0], 2)) 
     for i in range(r_arr.shape[0]):
-       r_new, v_new, dv = gas.evolve_position(r_arr[i], v_arr[i], ball_pos, ball_vel, R_ball, 1, step_length, M_gas, M_ball)
-       new_r_arr[i,0] += r_new[0]
-       new_r_arr[i,1] += r_new[1]
-       new_v_arr[i,0] += v_new[0]
-       new_v_arr[i,1] += v_new[1]
-       dv_arr[i,0] += dv[0]
-       dv_arr[i,1] += dv[1]
+       r_new, v_new, dv = gas.evolve_position(r_arr[i], v_arr[i], ball_pos, ball_vel, R_ball, box_size, step_length, M_gas, M_ball)
+       new_r_arr[i,0] = r_new[0]
+       new_r_arr[i,1] = r_new[1]
+       new_v_arr[i,0] = v_new[0]
+       new_v_arr[i,1] = v_new[1]
+       dv_arr[i,0] = dv[0]
+       dv_arr[i,1] = dv[1]
     return new_r_arr, new_v_arr, dv_arr
 
-r_arr_init = initialize.make_particles_pos(N_particles)
-v_arr_init = initialize.make_particles_vel(N_particles)
+#r_arr_init = initialize.make_particles_pos(N_particles)
+#v_arr_init = initialize.make_particles_vel(N_particles, box_size, init_ball_pos, R_ball)
 
-def run_simulation(r_arr_init, v_arr_init, ball_pos_init, ball_vel_init, R_ball, step_length, sim_time):
+def run_simulation(r_arr_init, v_arr_init, ball_pos_init, ball_vel_init, R_ball, step_length, sim_time, box_size):
     """
     Runs the n-body simulation
     Returns:
@@ -65,13 +65,14 @@ def run_simulation(r_arr_init, v_arr_init, ball_pos_init, ball_vel_init, R_ball,
     # --- time stepping ---
     for step in range(1, N_steps + 1):
         # evolves all gas particles by one step and get total dv per particle
-        r_new, v_new, dv_arr = stepper(r_arr, v_arr, ball_pos, ball_vel, R_ball, step_length)
+        r_new, v_new, dv_arr = stepper(r_arr, v_arr, ball_pos, ball_vel, R_ball, step_length, box_size)
 
         # net change in gas momentum
-        delta_p_gas = M_gas * np.sum(dv_arr, axis=0)
+        delta_px_gas = M_gas * np.sum(dv_arr[:,0])
+        delta_py_gas = M_gas * np.sum(dv_arr[:,1])
 
         # by momentum conservation, ball gets opposite impulse
-        net_impulse_ball = -delta_p_gas
+        net_impulse_ball = np.array([-delta_px_gas, -delta_py_gas])
 
         # updates projectile (box size = 1.0)
         ball_pos_new, ball_vel_new, ball_accel = gas.update_projectile(
@@ -81,7 +82,7 @@ def run_simulation(r_arr_init, v_arr_init, ball_pos_init, ball_vel_init, R_ball,
         # records histories
         ball_pos_hist[step] = ball_pos_new
         ball_vel_hist[step] = ball_vel_new
-        force_hist[step] = M_ball * ball_accel  # F = m a
+        force_hist[step] = M_ball * np.linalg.norm(ball_accel)  # F = m a
 
         # energies
         speeds2 = v_new[:, 0]**2 + v_new[:, 1]**2
@@ -100,11 +101,12 @@ def run_simulation(r_arr_init, v_arr_init, ball_pos_init, ball_vel_init, R_ball,
 if __name__ == "__main__":
     # --- simulation parameters ---
     R_ball = 0.1
+    box_size = 1
     dt = 0.01          # time step
     sim_time = 20.0    # total simulation time
     
     # --- initial gas particle state ---
-    r_arr_init = initialize.make_particles_pos(N_particles)
+    r_arr_init = initialize.make_particles_pos(N_particles, box_size, init_ball_pos, R_ball)
     v_arr_init = initialize.make_particles_vel(N_particles)
     
     # --- run the simulation ---
@@ -116,6 +118,7 @@ if __name__ == "__main__":
         R_ball,
         dt,
         sim_time,
+        box_size,
     )
     
     # --- builds time axis for plotting ---
