@@ -3,25 +3,23 @@ import matplotlib.pyplot as plt
 from initialize import *
 import gas
 import plottingClass as plots
+import tqdm
 
-M_ball = 10
-M_gas = 0.1
-N_particles = int(1e3)
-init_ball_pos = np.array([0.5,0.5])
+M_ball = 1
+M_gas = 1e-7
+N_particles = int(1e2)
+init_ball_pos = np.array([0.25,0.25])
 init_ball_vel = np.array([0,-2])
 
 def stepper(r_arr, v_arr, ball_pos, ball_vel, R_ball, step_length, box_size):
-    new_r_arr = np.zeros((r_arr.shape[0], 2))
-    new_v_arr = np.zeros((r_arr.shape[0], 2))
-    dv_arr = np.zeros((r_arr.shape[0], 2)) 
+    new_r_arr = np.zeros_like(r_arr)
+    new_v_arr = np.zeros_like(v_arr)
+    dv_arr = np.zeros_like(v_arr)
     for i in range(r_arr.shape[0]):
        r_new, v_new, dv = gas.evolve_position(r_arr[i], v_arr[i], ball_pos, ball_vel, R_ball, box_size, step_length, M_gas, M_ball)
-       new_r_arr[i,0] = r_new[0]
-       new_r_arr[i,1] = r_new[1]
-       new_v_arr[i,0] = v_new[0]
-       new_v_arr[i,1] = v_new[1]
-       dv_arr[i,0] = dv[0]
-       dv_arr[i,1] = dv[1]
+       new_r_arr[i] = r_new
+       new_v_arr[i] = v_new
+       dv_arr[i] = dv
     return new_r_arr, new_v_arr, dv_arr
 
 #r_arr_init = initialize.make_particles_pos(N_particles)
@@ -63,7 +61,7 @@ def run_simulation(r_arr_init, v_arr_init, ball_pos_init, ball_vel_init, R_ball,
     force_hist[0] = np.array([0.0, 0.0])
 
     # --- time stepping ---
-    for step in range(1, N_steps + 1):
+    for step in tqdm.tqdm(range(1, N_steps + 1)):
         # evolves all gas particles by one step and get total dv per particle
         r_new, v_new, dv_arr = stepper(r_arr, v_arr, ball_pos, ball_vel, R_ball, step_length, box_size)
 
@@ -76,7 +74,7 @@ def run_simulation(r_arr_init, v_arr_init, ball_pos_init, ball_vel_init, R_ball,
 
         # updates projectile (box size = 1.0)
         ball_pos_new, ball_vel_new, ball_accel = gas.update_projectile(
-            ball_pos, ball_vel, net_impulse_ball, M_ball, 1.0, step_length
+            ball_pos, ball_vel, net_impulse_ball, M_ball, box_size, step_length
         )
 
         # records histories
@@ -94,16 +92,17 @@ def run_simulation(r_arr_init, v_arr_init, ball_pos_init, ball_vel_init, R_ball,
         v_arr = v_new
         ball_pos = ball_pos_new
         ball_vel = ball_vel_new
-
+    print(ball_energy_hist)
+    print(average_particle_energy_hist)
     return average_particle_energy_hist, ball_energy_hist, ball_pos_hist, ball_vel_hist, force_hist
 
 
 if __name__ == "__main__":
     # --- simulation parameters ---
     R_ball = 0.1
-    box_size = 1
-    dt = 0.01          # time step
-    sim_time = 20.0    # total simulation time
+    box_size = .5
+    dt = 0.001          # time step
+    sim_time = 1.0    # total simulation time
     
     # --- initial gas particle state ---
     r_arr_init = initialize.make_particles_pos(N_particles, box_size, init_ball_pos, R_ball)
@@ -137,7 +136,8 @@ if __name__ == "__main__":
     plt.legend()
     plt.grid(True)
 
-   # ball speed over time
+    # ball speed over time
+    print(ball_vel_hist.shape)
     ball_speed = np.linalg.norm(ball_vel_hist, axis=1)
 
     plt.figure()
