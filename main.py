@@ -160,7 +160,7 @@ if __name__ == "__main__":
     plt.show()
     
     # --- plots ---
-    plotter = plots(time)
+    plotter = plots.plotting(time)
     
     # energies vs time
     total_E = avg_E_hist + ball_E_hist
