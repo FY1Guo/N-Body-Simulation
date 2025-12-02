@@ -120,13 +120,13 @@ def evolve_position(r0, v, ball_pos, v_ball, R_ball, box_size, step_length, m_ga
         ball_intersections = get_ball_collisions(r0, v, ball_pos, R_ball, t_remaining, m_gas, M_ball)
         wall_collisions = get_wall_collisions(r0, v, box_size, t_remaining)
         if len(ball_intersections) > 0:
-            v, r0, delta_t, delta_v = ball_intersections
+            r0, v, delta_t, delta_v = ball_intersections
             dv_total += delta_v
         elif len(wall_collisions) > 0:
-            v, r0, delta_t = wall_collisions
+            r0, v, delta_t = wall_collisions
         else:
             r0 = r0 + v * t_remaining
-            break
+            delta_t = t_remaining
         t_remaining -= delta_t
     return r0, v, dv_total
 
