@@ -9,7 +9,7 @@ M_ball = 1
 M_gas = 1e-7
 N_particles = int(1e2)
 init_ball_pos = np.array([0.25,0.25])
-init_ball_vel = np.array([0,-2])
+init_ball_vel = np.array([1,.5])
 
 def stepper(r_arr, v_arr, ball_pos, ball_vel, R_ball, step_length, box_size):
     new_r_arr = np.zeros_like(r_arr)
@@ -74,7 +74,7 @@ def run_simulation(r_arr_init, v_arr_init, ball_pos_init, ball_vel_init, R_ball,
 
         # updates projectile (box size = 1.0)
         ball_pos_new, ball_vel_new, ball_accel = gas.update_projectile(
-            ball_pos, ball_vel, net_impulse_ball, M_ball, box_size, step_length
+            ball_pos, ball_vel, R_ball, net_impulse_ball, M_ball, box_size, step_length
         )
 
         # records histories
@@ -106,7 +106,7 @@ if __name__ == "__main__":
     
     # --- initial gas particle state ---
     r_arr_init = initialize.make_particles_pos(N_particles, box_size, init_ball_pos, R_ball)
-    v_arr_init = initialize.make_particles_vel(N_particles)
+    v_arr_init = initialize.make_particles_vel(N_particles, mu_vel = 1000, sigma_vel = 10)
     
     # --- run the simulation ---
     avg_E_hist, ball_E_hist, ball_pos_hist, ball_vel_hist, force_hist = run_simulation(
